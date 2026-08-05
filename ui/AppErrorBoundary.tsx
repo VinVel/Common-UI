@@ -14,6 +14,7 @@ import { Typography } from "./Typography";
 
 type AppErrorBoundaryProps = {
   children: ReactNode;
+  onError?: (error: unknown, errorInfo: ErrorInfo) => void;
 };
 
 type AppErrorBoundaryState = {
@@ -36,7 +37,7 @@ export class AppErrorBoundary extends Component<
   }
 
   componentDidCatch(error: unknown, errorInfo: ErrorInfo) {
-    console.error("Velcore UI render failure", error, errorInfo);
+    this.props.onError?.(error, errorInfo);
   }
 
   render() {

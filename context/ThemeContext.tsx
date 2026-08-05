@@ -53,7 +53,15 @@ function exposeTokenGroup(
   }
 }
 
-export const ThemeProvider = ({ children }: { children: ReactNode }) => {
+type ThemeProviderProps = {
+  children: ReactNode;
+  onStorageError?: (error: unknown) => void;
+};
+
+export const ThemeProvider = ({
+  children,
+  onStorageError,
+}: ThemeProviderProps) => {
   const [theme, setTheme] = useState<ThemeMode>("system");
   const [themePreset, setThemePresetState] =
     useState<ThemePresetName>(DEFAULT_THEME_PRESET);
@@ -87,7 +95,7 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
           setThemePresetState(savedPreset);
         }
       } catch (error) {
-        console.error("Failed to load saved theme preferences.", error);
+        onStorageError?.(error);
       }
     }
 
@@ -96,7 +104,7 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
     return () => {
       cancelled = true;
     };
-  }, [supportedThemePresets]);
+  }, [onStorageError]);
 
   async function updateThemeMode(nextTheme: ThemeMode) {
     const previousTheme = theme;
