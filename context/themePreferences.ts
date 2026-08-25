@@ -25,10 +25,18 @@ export type ThemePreferences = {
   ) => Promise<string>;
 };
 
+export type InMemoryThemePreferencesOptions = {
+  themeMode?: ThemeMode;
+  themePreset?: ThemePresetName;
+};
+
 // Provides predictable behavior for browser rendering and isolated UI tests.
-export function createInMemoryThemePreferences(): ThemePreferences {
-  let themeMode: ThemeMode = "system";
-  let themePreset: ThemePresetName = DEFAULT_THEME_PRESET;
+export function createInMemoryThemePreferences(
+  options: InMemoryThemePreferencesOptions = {},
+): ThemePreferences {
+  let themeMode: ThemeMode = options.themeMode ?? "system";
+  let themePreset: ThemePresetName =
+    options.themePreset ?? DEFAULT_THEME_PRESET;
 
   return {
     async getThemeMode() {

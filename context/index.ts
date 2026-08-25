@@ -11,5 +11,6 @@
 export { ThemeProvider, useTheme } from "./ThemeContext";
 export {
   createInMemoryThemePreferences,
+  type InMemoryThemePreferencesOptions,
   type ThemePreferences,
 } from "./themePreferences";
