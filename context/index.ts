@@ -9,3 +9,7 @@
  */
 
 export { ThemeProvider, useTheme } from "./ThemeContext";
+export {
+  createInMemoryThemePreferences,
+  type ThemePreferences,
+} from "./themePreferences";

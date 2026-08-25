@@ -8,28 +8,22 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-import { getCurrentWindow } from "@tauri-apps/api/window";
-import { platform } from "@tauri-apps/plugin-os";
 import { Maximize, Minus, X } from "lucide-react";
 import { useEffect, type MouseEvent, type ReactNode } from "react";
 import { classNames } from "./classNames";
+import {
+  createFallbackWindowController,
+  type WindowController,
+} from "./windowController";
 
 type AppWindowFrameProps = {
   children: ReactNode;
   iconSrc?: string;
   titlebarLabel?: string;
+  windowController?: WindowController;
 };
 
-const appWindow = getCurrentWindow();
-const desktopPlatforms = new Set(["linux", "macos", "windows"]);
-
-function getShouldShowCustomTitlebar(): boolean {
-  try {
-    return desktopPlatforms.has(platform());
-  } catch {
-    return false;
-  }
-}
+const defaultWindowController = createFallbackWindowController();
 
 function isWindowControlTarget(target: EventTarget | null): boolean {
   return target instanceof Element && target.closest("button") !== null;
@@ -39,8 +33,9 @@ export function AppWindowFrame({
   children,
   iconSrc,
   titlebarLabel = "Application window controls",
+  windowController = defaultWindowController,
 }: AppWindowFrameProps) {
-  const shouldShowCustomTitlebar = getShouldShowCustomTitlebar();
+  const shouldShowCustomTitlebar = windowController.isDesktopPlatform();
 
   useEffect(() => {
     function suppressNativeContextMenu(event: Event) {
@@ -63,11 +58,11 @@ export function AppWindowFrame({
     }
 
     if (event.detail === 2) {
-      void appWindow.toggleMaximize();
+      void windowController.toggleMaximize();
       return;
     }
 
-    void appWindow.startDragging();
+    void windowController.startDragging();
   }
 
   if (!shouldShowCustomTitlebar) {
@@ -100,7 +95,7 @@ export function AppWindowFrame({
             aria-label="Minimize window"
             className="ui-window-titlebar-button"
             type="button"
-            onClick={() => void appWindow.minimize()}
+            onClick={() => void windowController.minimize()}
           >
             <Minus aria-hidden="true" />
           </button>
@@ -108,7 +103,7 @@ export function AppWindowFrame({
             aria-label="Maximize window"
             className="ui-window-titlebar-button"
             type="button"
-            onClick={() => void appWindow.toggleMaximize()}
+            onClick={() => void windowController.toggleMaximize()}
           >
             <Maximize aria-hidden="true" />
           </button>
@@ -116,7 +111,7 @@ export function AppWindowFrame({
             aria-label="Close window"
             className="ui-window-titlebar-button ui-window-titlebar-button--close"
             type="button"
-            onClick={() => void appWindow.close()}
+            onClick={() => void windowController.close()}
           >
             <X aria-hidden="true" />
           </button>

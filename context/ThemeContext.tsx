@@ -15,7 +15,6 @@ import {
   useEffect,
   type ReactNode,
 } from "react";
-import { invoke } from "@tauri-apps/api/core";
 import { primitives, type ThemePrimitives } from "../themes/primitives";
 import {
   DEFAULT_THEME_PRESET,
@@ -26,6 +25,10 @@ import {
   type ThemePresetName,
 } from "../themes/colorpalette";
 import { useColorScheme } from "../hooks/useColorScheme";
+import {
+  createInMemoryThemePreferences,
+  type ThemePreferences,
+} from "./themePreferences";
 
 interface ThemeContextType {
   theme: ThemeMode;
@@ -38,6 +41,7 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 const supportedThemePresets = Object.keys(themePalettes) as ThemePresetName[];
+const defaultThemePreferences = createInMemoryThemePreferences();
 
 function toCssVariableName(token: string): string {
   return token.replace(/[A-Z]/g, (match) => `-${match.toLowerCase()}`);
@@ -56,11 +60,13 @@ function exposeTokenGroup(
 type ThemeProviderProps = {
   children: ReactNode;
   onStorageError?: (error: unknown) => void;
+  preferences?: ThemePreferences;
 };
 
 export const ThemeProvider = ({
   children,
   onStorageError,
+  preferences = defaultThemePreferences,
 }: ThemeProviderProps) => {
   const [theme, setTheme] = useState<ThemeMode>("system");
   const [themePreset, setThemePresetState] =
@@ -75,11 +81,11 @@ export const ThemeProvider = ({
     async function loadThemePreferences() {
       try {
         const [savedMode, savedPreset] = await Promise.all([
-          invoke<string>("get_theme_mode"),
-          invoke<string>("get_theme_preset", {
-            supportedPresets: supportedThemePresets,
-            defaultPreset: DEFAULT_THEME_PRESET,
-          }),
+          preferences.getThemeMode(),
+          preferences.getThemePreset(
+            supportedThemePresets,
+            DEFAULT_THEME_PRESET,
+          ),
         ]);
 
         if (
@@ -104,16 +110,14 @@ export const ThemeProvider = ({
     return () => {
       cancelled = true;
     };
-  }, [onStorageError]);
+  }, [onStorageError, preferences]);
 
   async function updateThemeMode(nextTheme: ThemeMode) {
     const previousTheme = theme;
     setTheme(nextTheme);
 
     try {
-      const savedTheme = await invoke<string>("set_theme_mode", {
-        mode: nextTheme,
-      });
+      const savedTheme = await preferences.setThemeMode(nextTheme);
 
       if (
         savedTheme !== "system" &&
@@ -137,11 +141,11 @@ export const ThemeProvider = ({
     setThemePresetState(nextPreset);
 
     try {
-      const savedPreset = await invoke<string>("set_theme_preset", {
-        preset: nextPreset,
-        supportedPresets: supportedThemePresets,
-        defaultPreset: DEFAULT_THEME_PRESET,
-      });
+      const savedPreset = await preferences.setThemePreset(
+        nextPreset,
+        supportedThemePresets,
+        DEFAULT_THEME_PRESET,
+      );
 
       if (!isThemePresetName(savedPreset)) {
         throw new Error(

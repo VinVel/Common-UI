@@ -14,6 +14,10 @@ import "./ui.css";
 export { AppRail, AppRailButton } from "./AppRail";
 export { AppErrorBoundary } from "./AppErrorBoundary";
 export { AppWindowFrame } from "./AppWindowFrame";
+export {
+  createFallbackWindowController,
+  type WindowController,
+} from "./windowController";
 export { BackButton } from "./BackButton";
 export { Button } from "./Button";
 export { EmptyState } from "./EmptyState";

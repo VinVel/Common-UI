@@ -6,12 +6,12 @@ build configuration.
 
 ## Host App Contract
 
-Host apps that mount `ThemeProvider` must expose these Tauri commands:
+Host apps provide a `ThemePreferences` implementation when theme settings
+should be persisted by the host. The shared UI itself does not depend on a
+native runtime and uses an in-memory implementation by default.
 
-- `get_theme_mode`
-- `set_theme_mode`
-- `get_theme_preset`
-- `set_theme_preset`
+`AppWindowFrame` accepts a `WindowController` implementation for native window
+actions. Without one, it renders as a regular browser-compatible wrapper.
 
 `AppWindowFrame` does not own app branding. Pass app-specific assets from the
 host app, for example:
@@ -23,8 +23,7 @@ host app, for example:
 ```
 
 The shared UI expects the host app to provide compatible versions of React,
-`@tauri-apps/api`, `@tauri-apps/plugin-os`, `lucide-react`,
-`overlayscrollbars`, and `overlayscrollbars-react`.
+`lucide-react`, `overlayscrollbars`, and `overlayscrollbars-react`.
 
 ## Structure
 
