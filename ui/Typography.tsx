@@ -12,14 +12,7 @@ import { createElement, type HTMLAttributes, type ReactNode } from "react";
 import { classNames } from "./classNames";
 
 type TypographyVariant =
-  | "h1"
-  | "h2"
-  | "h3"
-  | "body"
-  | "bodySmall"
-  | "meta"
-  | "label"
-  | "eyebrow";
+  "h1" | "h2" | "h3" | "body" | "bodySmall" | "meta" | "label" | "eyebrow";
 
 type TypographyElement = "h1" | "h2" | "h3" | "p" | "span";
 
